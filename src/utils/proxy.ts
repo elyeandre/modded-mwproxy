@@ -107,6 +107,8 @@ export async function specificProxyRequest(
     const protocol = getRequestProtocol(outputEvent);
     const hostname = getRequestHost(outputEvent);
     const destination = getQuery<{ destination?: string }>(event).destination;
+    console.log('test');
+    
 
     // Convert array buffer to string
     const playlistText = new TextDecoder().decode(arrayBuffer);

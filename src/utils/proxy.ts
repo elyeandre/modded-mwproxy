@@ -95,7 +95,6 @@ export async function specificProxyRequest(
     },
     async onResponse(outputEvent, response) {
 
- if (response.headers.get('Content-Type').includes('application/vnd.apple.mpegurl')) {
 
   const arrayBuffer = await response.arrayBuffer();
 
@@ -115,22 +114,22 @@ export async function specificProxyRequest(
       .map((line) => {
         if (line.startsWith('http')) {
           // Add the proxy URL and referrer query parameter
-          const modifiedURL = `${protocol}//${hostname}/corsproxy/?destination=${encodeURIComponent(
-            line
-          )}${headersString}`;
+          console.log(line);
+          const modifiedURL = `${protocol}://${hostname}/?destination=${encodeURIComponent(line)}${headersString}`;
           return modifiedURL;
         } else if (line.endsWith('m3u8')) {
           // Modify playlist for vidsrcto
-          const modifiedURL = `?destination=${encodeURIComponent(
-            destination.replace(/\/list[^/]+\.m3u8/, '')
-          )}/${encodeURIComponent(line)}${headersString}`;
+          // const modifiedURL = `?destination=${encodeURIComponent(
+          //   destination.replace(/\/list[^/]+\.m3u8/, '')
+          // )}/${encodeURIComponent(line)}${headersString}`;
 
-          return modifiedURL;
+          // return modifiedURL;
         } else if (line.endsWith('ts')) {
-          const modifiedURL = `?destination=${destination.replace(/\/[^/]+\.m3u8/, '')}/${encodeURIComponent(
-            line
-          )}${headersString}`;
-          return modifiedURL;
+          // const modifiedURL = `?destination=${destination.replace(/\/[^/]+\.m3u8/, '')}/${encodeURIComponent(
+          // const modifiedURL = `?destination=${destination.replace(/\/[^/]+\.m3u8/, '')}/
+          //   line
+          // ${headersString}`;
+          // return modifiedURL;
         }
         return line;
       })
@@ -142,7 +141,6 @@ export async function specificProxyRequest(
       const headers = getAfterResponseHeaders(response.headers, response.url);
       setResponseHeaders(outputEvent, headers);
       sendWebResponse(outputEvent, modifiedResponse)
-    }
   }
       
   });

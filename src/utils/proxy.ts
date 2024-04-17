@@ -137,10 +137,17 @@ export async function specificProxyRequest(
       .join('\n');
     
       const modifiedArrayBuffer = new TextEncoder().encode(modifiedPlaylistText);
-      let modifiedResponse = new Response(modifiedArrayBuffer);
+      const modifiedResponse = new Response(modifiedArrayBuffer, {
+      headers: {
+        'Content-Type': 'application/vnd.apple.mpegurl',
+        'Access-Control-Allow-Origin': '*', // Set CORS header here
+        Vary: 'Origin', // Add Vary header here
+        // ...(proxiedCookies && { 'Set-Cookie': proxiedCookies })
+      }
+    });
 
-      const headers = getAfterResponseHeaders(response.headers, response.url);
-      setResponseHeaders(outputEvent, headers);
+      // const headers = getAfterResponseHeaders(response.headers, response.url);
+      // setResponseHeaders(outputEvent, headers);
       sendWebResponse(outputEvent, modifiedResponse)
   } 
 

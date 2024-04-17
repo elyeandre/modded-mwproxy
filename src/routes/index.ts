@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
     await specificProxyRequest(event, destination, {
       blacklistedHeaders: getBlacklistedHeaders(),
       fetchOptions: {
-        redirect: 'follow',
+        // redirect: 'follow',
         headers: getProxyHeaders(event.headers, extractHeadersFromPath(event)),
         body,
       },

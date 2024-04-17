@@ -146,8 +146,8 @@ export async function specificProxyRequest(
       }
     });
 
-      // const headers = getAfterResponseHeaders(response.headers, response.url);
-      // setResponseHeaders(outputEvent, headers);
+      const headers = getAfterResponseHeaders(response.headers, response.url);
+      setResponseHeaders(outputEvent, headers);
       sendWebResponse(outputEvent, modifiedResponse)
   } 
 

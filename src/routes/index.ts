@@ -49,14 +49,14 @@ export default defineEventHandler(async (event) => {
     await specificProxyRequest(event, destination, {
       blacklistedHeaders: getBlacklistedHeaders(),
       fetchOptions: {
-        // redirect: 'follow',
+        redirect: 'manual',
         headers: getProxyHeaders(event.headers, extractHeadersFromPath(event)),
         body,
       },
       async onResponse(outputEvent, response) {
-        const headers = getAfterResponseHeaders(response.headers, response.url);
-        setResponseHeaders(outputEvent, headers);
-        if (token) setTokenHeader(event, token);
+        // const headers = getAfterResponseHeaders(response.headers, response.url);
+        // setResponseHeaders(outputEvent, headers);
+        // if (token) setTokenHeader(event, token);
       },
     });
   } catch (e) {

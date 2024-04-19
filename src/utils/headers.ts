@@ -36,7 +36,10 @@ function copyHeader(
     outputHeaders.set(outputKey, headers.get(inputKey) ?? '');
 }
 
-export function getProxyHeaders(headers: Headers, queryHeader: Headers ): Headers {
+export function getProxyHeaders(
+  headers: Headers,
+  queryHeader: Record<string, string>,
+): Headers {
   const output = new Headers();
 
   // default user agent
@@ -45,7 +48,7 @@ export function getProxyHeaders(headers: Headers, queryHeader: Headers ): Header
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
   );
 
- for (const [key, value] of Object.entries(queryHeader)) {
+  for (const [key, value] of Object.entries(queryHeader)) {
     output.set(key, value);
   }
 
@@ -91,4 +94,3 @@ export function extractHeadersFromPath(event: H3Event): Record<string, string> {
 
   return headers;
 }
-

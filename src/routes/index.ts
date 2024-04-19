@@ -3,7 +3,7 @@ import {
   extractHeadersFromPath,
   getAfterResponseHeaders,
   getBlacklistedHeaders,
-  getProxyHeaders
+  getProxyHeaders,
 } from '@/utils/headers';
 import {
   createTokenIfNeeded,
@@ -15,10 +15,9 @@ export default defineEventHandler(async (event) => {
   // handle cors, if applicable
   if (isPreflightRequest(event)) return handleCors(event, {});
 
-
   // parse destination URL
   const destination = getQuery<{ destination?: string }>(event).destination;
-  
+
   if (!destination)
     return await sendJson({
       event,
@@ -42,7 +41,6 @@ export default defineEventHandler(async (event) => {
   // read body
   const body = await getBodyBuffer(event);
   const token = await createTokenIfNeeded(event);
-  console.log(extractHeadersFromPath(event));
 
   // proxy
   try {
@@ -54,9 +52,9 @@ export default defineEventHandler(async (event) => {
         body,
       },
       async onResponse(outputEvent, response) {
-        // const headers = getAfterResponseHeaders(response.headers, response.url);
-        // setResponseHeaders(outputEvent, headers);
-        // if (token) setTokenHeader(event, token);
+        const headers = getAfterResponseHeaders(response.headers, response.url);
+        setResponseHeaders(outputEvent, headers);
+        if (token) setTokenHeader(event, token);
       },
     });
   } catch (e) {

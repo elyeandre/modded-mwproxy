@@ -1,6 +1,4 @@
-import {
-  extractHeadersFromPath,
-} from '@/utils/headers';
+import { extractHeadersFromPath } from '@/utils/headers';
 import {
   Duplex,
   H3Event,
@@ -52,11 +50,9 @@ export async function specificProxyRequest(
   if (PayloadMethods.has(event.method)) {
     if (opts.streamRequest) {
       body = getRequestWebStream(event);
-      
       duplex = 'half';
     } else {
       body = await readRawBody(event, false).catch(() => undefined);
-      
     }
   }
 
@@ -84,7 +80,7 @@ export async function specificProxyRequest(
     });
   }
 
-    return sendProxy(event, target, {
+  return sendProxy(event, target, {
     ...opts,
     fetchOptions: {
       method,
@@ -94,65 +90,65 @@ export async function specificProxyRequest(
       headers: fetchHeaders,
     },
     async onResponse(outputEvent, response) {
+      if (
+        (response.headers as Headers)
+          .get('Content-Type')
+          ?.includes('application/vnd.apple.mpegurl')
+      ) {
+        const arrayBuffer = await response.arrayBuffer();
 
-  if (response.headers.get('Content-Type').includes('application/vnd.apple.mpegurl')) {
-
-  const arrayBuffer = await response.arrayBuffer();
-
-   let headersString = '';
-    for (const [key, value] of Object.entries(extractHeadersFromPath(outputEvent))) {
-      headersString += `&${key}=${encodeURIComponent(value)}`;
-    }
-    
-    const protocol = getRequestProtocol(outputEvent);
-    const hostname = getRequestHost(outputEvent);
-    const destination = getQuery<{ destination?: string }>(event).destination;
-    console.log('test');
-    
-
-    // Convert array buffer to string
-    const playlistText = new TextDecoder().decode(arrayBuffer);
-    const modifiedPlaylistText = playlistText
-      .split('\n')
-      .map((line) => {
-        if (line.startsWith('http')) {
-          // Add the proxy URL and referrer query parameter
-          console.log(line);
-          const modifiedURL = `${protocol}://${hostname}/?destination=${encodeURIComponent(line)}${headersString}`;
-          return modifiedURL;
-        } else if (line.endsWith('m3u8')) {
-          // Modify playlist for vidsrcto
-          const modifiedURL = `?destination=${encodeURIComponent(
-            destination.replace(/\/list[^/]+\.m3u8/, '')
-          )}/${encodeURIComponent(line)}${headersString}`;
-          return modifiedURL;
-        } else if (line.endsWith('ts')) {
-          const modifiedURL = `?destination=${destination.replace(/\/[^/]+\.m3u8/, '')}/${encodeURIComponent(
-            line
-          )}${headersString}`;
-          return modifiedURL;
+        let headersString = '';
+        for (const [key, value] of Object.entries(
+          extractHeadersFromPath(outputEvent),
+        )) {
+          headersString += `&${key}=${encodeURIComponent(value)}`;
         }
-        return line;
-      })
-      .join('\n');
-    
-      const modifiedArrayBuffer = new TextEncoder().encode(modifiedPlaylistText);
-      const modifiedResponse = new Response(modifiedArrayBuffer, {
-      headers: {
-        'Content-Type': 'application/vnd.apple.mpegurl',
-        'Access-Control-Allow-Origin': '*', // Set CORS header here
-        Vary: 'Origin', // Add Vary header here
-        // ...(proxiedCookies && { 'Set-Cookie': proxiedCookies })
+
+        const protocol = getRequestProtocol(outputEvent);
+        const hostname = getRequestHost(outputEvent);
+        const destination = getQuery<{ destination?: string }>(
+          event,
+        ).destination;
+
+        // Convert array buffer to string
+        const playlistText = new TextDecoder().decode(arrayBuffer);
+        const modifiedPlaylistText = playlistText
+          .split('\n')
+          .map((line) => {
+            if (line.startsWith('http')) {
+              // Add the proxy URL and referrer query parameter
+              const modifiedURL = `${protocol}://${hostname}/?destination=${encodeURIComponent(
+                line,
+              )}${headersString}`;
+              return modifiedURL;
+            } else if (line.endsWith('m3u8') && destination !== undefined) {
+              // Modify playlist for vidsrcto
+              const modifiedURL = `?destination=${encodeURIComponent(
+                destination.replace(/\/list[^/]+\.m3u8/, ''),
+              )}/${encodeURIComponent(line)}${headersString}`;
+              return modifiedURL;
+            } else if (line.endsWith('ts') && destination !== undefined) {
+              const modifiedURL = `?destination=${destination.replace(
+                /\/[^/]+\.m3u8/,
+                '',
+              )}/${encodeURIComponent(line)}${headersString}`;
+              return modifiedURL;
+            }
+            return line;
+          })
+          .join('\n');
+
+        const modifiedArrayBuffer = new TextEncoder().encode(
+          modifiedPlaylistText,
+        );
+        const modifiedResponse = new Response(modifiedArrayBuffer);
+        const headers = getAfterResponseHeaders(response.headers, response.url);
+        setResponseHeaders(outputEvent, headers);
+        sendWebResponse(outputEvent, modifiedResponse);
+      } else {
+        const headers = getAfterResponseHeaders(response.headers, response.url);
+        setResponseHeaders(outputEvent, headers);
       }
-    });
-
-      const headers = getAfterResponseHeaders(response.headers, response.url);
-      setResponseHeaders(outputEvent, headers);
-      sendWebResponse(outputEvent, modifiedResponse)
-  } 
-
-  }
-      
+    },
   });
-  
 }

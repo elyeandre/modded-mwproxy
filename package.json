@@ -16,7 +16,7 @@
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "h3": "^1.10.0",
+    "h3": "^1.11.1",
     "jose": "^5.2.0",
     "nitropack": "^2.9.6"
   },

@@ -91,7 +91,7 @@ export async function specificProxyRequest(
     },
     async onResponse(outputEvent, response) {
       if (
-        (response.headers as Headers)
+        response.headers
           .get('Content-Type')
           ?.includes('application/vnd.apple.mpegurl')
       ) {

@@ -139,7 +139,7 @@ export async function specificProxyRequest(
               const modifiedURL = `?destination=${destination.replace(
                 /video\.m3u8\?auth=.*/,
                 '',
-              )}/${encodeURIComponent(line)}${headersString}`;
+              )}${encodeURIComponent(line)}${headersString}`;
               return modifiedURL;
             }
             return line;

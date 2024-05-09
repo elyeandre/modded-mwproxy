@@ -134,7 +134,7 @@ export async function specificProxyRequest(
               )}/${encodeURIComponent(line)}${headersString}`;
               return modifiedURL;
             }
-            else {
+            else if (line.endWith('m3u8') && destination !== undefined {
               // Modify playlist for specific playlist
               const modifiedURL = `?destination=${destination.replace(
                 /video\.m3u8\?auth=.*/,

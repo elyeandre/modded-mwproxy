@@ -134,6 +134,14 @@ export async function specificProxyRequest(
               )}/${encodeURIComponent(line)}${headersString}`;
               return modifiedURL;
             }
+            else {
+              // Modify playlist for specific playlist
+              const modifiedURL = `?destination=${destination.replace(
+                /video\.m3u8\?auth=.*/,
+                '',
+              )}/${encodeURIComponent(line)}${headersString}`;
+              return modifiedURL;
+            }
             return line;
           })
           .join('\n');

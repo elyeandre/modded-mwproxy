@@ -73,6 +73,7 @@ export function getAfterResponseHeaders(
     'Access-Control-Expose-Headers': '*',
     Vary: 'Origin',
     'X-Final-Destination': finalUrl,
+    ...output,
   };
 }
 
